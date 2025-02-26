@@ -1,29 +1,19 @@
-from graphics import Window, Line, Point
-from cell import Cell
+from graphics import Window
+from maze import Maze
 
 
 def main():
-    window = Window(800, 600)
 
-    cell = Cell(window)
-    cell.has_left_wall = False
-    cell.draw(50, 50, 100, 100)
+    num_rows = 12
+    num_cols = 16
+    margin = 50
+    screen_x = 800
+    screen_y = 600
+    cell_size_x = (screen_x - 2 * margin) / num_cols
+    cell_size_y = (screen_y - 2 * margin) / num_rows
+    window = Window(screen_x, screen_y)
 
-    cell = Cell(window)
-    cell.has_right_wall = False
-    cell.draw(150, 50, 200, 100)
-
-    cell = Cell(window)
-    cell.has_top_wall = False
-    cell.draw(250, 50, 300, 100)
-
-    cell = Cell(window)
-    cell.has_bottom_wall = False
-    cell.draw(350, 50, 400, 100)
-
-    cell = Cell(window)
-    cell.draw(450, 50, 500, 100)
-
+    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, window)
     window.wait_for_close()
 
 
