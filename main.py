@@ -14,6 +14,9 @@ def main():
     window = Window(screen_x, screen_y)
 
     maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, window)
+    can_be_solved = maze.solve()
+    if not can_be_solved:
+        print("maze cannot be solved")
     window.wait_for_close()
 
 
