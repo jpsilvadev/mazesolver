@@ -34,6 +34,9 @@ class Window:
     def draw_line(self, line: Line, fill_color: str = "black") -> None:
         line.draw(self.__canvas, fill_color=fill_color)
 
+    def draw_text(self, x: int, y: int, text: str):
+        self.__canvas.create_text(x, y, text=text, font=("Arial", 14), anchor="center")
+
     def wait_for_close(self) -> None:
         self.__is_running = True
         while self.__is_running:

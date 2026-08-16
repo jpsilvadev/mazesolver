@@ -27,6 +27,9 @@ class Maze:
         self.__win = window
         self.__cells: list[list[Cell]] = []
 
+        self.total_moves = 0
+        self.solution_steps = 0
+
         if seed is not None:
             random.seed(seed)
 
@@ -128,7 +131,7 @@ class Maze:
             for j in range(self.__num_rows):
                 self.__cells[i][j].visited = False
 
-    def _solve_r(self, i: int, j: int) -> bool:
+    def _solve_r(self, i: int, j: int, depth: int = 0) -> bool:
         self.__animate()
         current = self.__cells[i][j]
         current.visited = True
@@ -137,6 +140,7 @@ class Maze:
         last_row = self.__num_rows - 1
         goal = self.__cells[last_col][last_row]
         if current == goal:
+            self.solution_steps = depth
             return True
 
         # check neighbouring cells
@@ -145,33 +149,41 @@ class Maze:
             left_cell = self.__cells[i - 1][j]
             if not current.has_left_wall and not left_cell.visited:
                 current.draw_move(left_cell, undo=False)
-                if self._solve_r(i - 1, j):
+                self.total_moves += 1
+                if self._solve_r(i - 1, j, depth + 1):
                     return True
                 left_cell.draw_move(current, undo=True)
+                self.total_moves += 1
         # right
         if i + 1 < self.__num_columns:
             right_cell = self.__cells[i + 1][j]
             if not current.has_right_wall and not right_cell.visited:
                 current.draw_move(right_cell, undo=False)
-                if self._solve_r(i + 1, j):
+                self.total_moves += 1
+                if self._solve_r(i + 1, j, depth + 1):
                     return True
                 right_cell.draw_move(current, undo=True)
+                self.total_moves += 1
         # up
         if j - 1 >= 0:
             top_cell = self.__cells[i][j - 1]
             if not current.has_top_wall and not top_cell.visited:
                 current.draw_move(top_cell, undo=False)
-                if self._solve_r(i, j - 1):
+                self.total_moves += 1
+                if self._solve_r(i, j - 1, depth + 1):
                     return True
                 top_cell.draw_move(current, undo=True)
+                self.total_moves += 1
         # down
         if j + 1 < self.__num_rows:
             bottom_cell = self.__cells[i][j + 1]
             if not current.has_bottom_wall and not bottom_cell.visited:
                 current.draw_move(bottom_cell, undo=False)
-                if self._solve_r(i, j + 1):
+                self.total_moves += 1
+                if self._solve_r(i, j + 1, depth + 1):
                     return True
                 bottom_cell.draw_move(current, undo=True)
+                self.total_moves += 1
         return False
 
     def solve(self) -> bool:
