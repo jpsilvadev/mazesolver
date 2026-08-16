@@ -4,7 +4,7 @@ from gui import Line, Point, Window
 
 
 class Cell:
-    def __init__(self, window: Window) -> None:
+    def __init__(self, window: Window | None = None) -> None:
         self.has_left_wall = True
         self.has_right_wall = True
         self.has_top_wall = True
@@ -14,8 +14,9 @@ class Cell:
         self.__y1 = -1.0
         self.__y2 = -1.0
         self.__win = window
+        self.visited = False
 
-    def draw(self, x1, y1, x2, y2) -> None:
+    def draw(self, x1: int, y1: int, x2: int, y2: int) -> None:
         if self.__win is None:
             return
         self.__x1 = x1
@@ -26,20 +27,35 @@ class Cell:
         if self.has_left_wall:
             line = Line(Point(self.__x1, self.__y1), Point(self.__x1, self.__y2))
             self.__win.draw_line(line)
+        else:
+            # broken walls are just empty/white lines
+            line = Line(Point(self.__x1, self.__y1), Point(self.__x1, self.__y2))
+            self.__win.draw_line(line, fill_color="white")
 
         if self.has_top_wall:
             line = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
             self.__win.draw_line(line)
+        else:
+            line = Line(Point(self.__x1, self.__y1), Point(self.__x2, self.__y1))
+            self.__win.draw_line(line, fill_color="white")
 
         if self.has_right_wall:
             line = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
             self.__win.draw_line(line)
+        else:
+            line = Line(Point(self.__x2, self.__y1), Point(self.__x2, self.__y2))
+            self.__win.draw_line(line, fill_color="white")
 
         if self.has_bottom_wall:
             line = Line(Point(self.__x1, self.__y2), Point(self.__x2, self.__y2))
             self.__win.draw_line(line)
+        else:
+            line = Line(Point(self.__x1, self.__y2), Point(self.__x2, self.__y2))
+            self.__win.draw_line(line, fill_color="white")
 
     def draw_move(self, to_cell: Cell, undo: bool = False) -> None:
+        if self.__win is None:
+            return
         fill_color = "gray" if undo else "red"
         center_x = (self.__x1 + self.__x2) / 2
         center_y = (self.__y1 + self.__y2) / 2

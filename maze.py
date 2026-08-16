@@ -1,3 +1,4 @@
+import random
 import time
 
 from cell import Cell
@@ -13,7 +14,8 @@ class Maze:
         num_columns: int,
         cell_size_x: float,
         cell_size_y: float,
-        window: Window,
+        window: Window | None = None,
+        seed: int | None = None,
     ) -> None:
         self.__x1 = x1
         self.__y1 = y1
@@ -24,10 +26,15 @@ class Maze:
         self.__win = window
         self.__cells: list[list[Cell]] = []
 
+        if seed is not None:
+            random.seed(seed)
+
         self.__create_cells()
+        self.__break_entrance_and_exit()
+        self.__break_walls_recursive(0, 0)
+        self.__reset_cells_visited()
 
     def __create_cells(self) -> None:
-        # create cells
         for _ in range(self.__num_columns):
             cols = []
             for _ in range(self.__num_rows):
@@ -35,12 +42,15 @@ class Maze:
                 cols.append(cell)
             self.__cells.append(cols)
 
+        if self.__win is None:
+            return
+
         # draw cells
         for i in range(self.__num_columns):
             for j in range(self.__num_rows):
                 self.__draw_cell(i, j)
 
-    def __draw_cell(self, i, j) -> None:
+    def __draw_cell(self, i: int, j: int) -> None:
         cell_x1 = self.__x1 + (i * self.__cell_size_x)
         cell_y1 = self.__y1 + (j * self.__cell_size_y)
 
@@ -49,6 +59,79 @@ class Maze:
 
         self.__cells[i][j].draw(cell_x1, cell_y1, cell_x2, cell_y2)
         self.__animate()
+
+    def __break_entrance_and_exit(self) -> None:
+        self.__cells[0][0].has_top_wall = False
+        self.__draw_cell(0, 0)
+
+        # can't access with -1 indexing
+        # because __draw_cell uses i and j directly in calculations
+        # would shift cell to top left of maze
+        last_col = self.__num_columns - 1
+        last_row = self.__num_rows - 1
+        self.__cells[last_col][last_row].has_bottom_wall = False
+        self.__draw_cell(last_col, last_row)
+
+    def __break_walls_recursive(self, i: int, j: int):
+        current = self.__cells[i][j]
+        current.visited = True
+
+        while True:
+            # check adjacent cells
+            to_visit = []
+
+            # boundary checks
+            # left check -> boundary: i > 0
+            if i > 0 and not self.__cells[i - 1][j].visited:
+                to_visit.append((i - 1, j))
+            # right check -> boundary: i < num_cols < 1
+            if i < self.__num_columns - 1 and not self.__cells[i + 1][j].visited:
+                to_visit.append((i + 1, j))
+            # up check -> boundary: j > 0
+            if j > 0 and not self.__cells[i][j - 1].visited:
+                to_visit.append((i, j - 1))
+            # down check -> boundary: j < num_rows - 1
+            if j < self.__num_rows - 1 and not self.__cells[i][j + 1].visited:
+                to_visit.append((i, j + 1))
+
+            if len(to_visit) == 0:
+                self.__draw_cell(i, j)
+                return
+            else:
+                new_direction = random.randrange(len(to_visit))
+                next_i, next_j = to_visit[new_direction]
+                neighbor = self.__cells[next_i][next_j]
+                # break down walls based on random direction
+                # left
+                if next_i == i - 1:
+                    current.has_left_wall = False
+                    neighbor.has_right_wall = False
+                # right
+                if next_i == i + 1:
+                    current.has_right_wall = False
+                    neighbor.has_left_wall = False
+                # up
+                if next_j == j - 1:
+                    current.has_top_wall = False
+                    neighbor.has_bottom_wall = False
+                # down
+                if next_j == j + 1:
+                    current.has_bottom_wall = False
+                    neighbor.has_top_wall = False
+
+                self.__break_walls_recursive(next_i, next_j)
+
+    def __reset_cells_visited(self) -> None:
+        # reset visited props so we can solve maze after generating paths
+        for i in range(self.__num_columns):
+            for j in range(self.__num_rows):
+                self.__cells[i][j].visited = False
+
+    def solve_r(self) -> None:
+        pass
+
+    def solve(self) -> None:
+        self.solve_r()
 
     def __animate(self) -> None:
         if self.__win is None:
