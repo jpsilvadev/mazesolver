@@ -127,14 +127,57 @@ class Maze:
             for j in range(self.__num_rows):
                 self.__cells[i][j].visited = False
 
-    def solve_r(self) -> None:
-        pass
+    def _solve_r(self, i: int, j: int) -> bool:
+        self.__animate()
+        current = self.__cells[i][j]
+        current.visited = True
 
-    def solve(self) -> None:
-        self.solve_r()
+        last_col = self.__num_columns - 1
+        last_row = self.__num_rows - 1
+        goal = self.__cells[last_col][last_row]
+        if current == goal:
+            return True
+
+        # check neighbouring cells
+        # left
+        if i - 1 >= 0:
+            left_cell = self.__cells[i - 1][j]
+            if not current.has_left_wall and not left_cell.visited:
+                current.draw_move(left_cell, undo=False)
+                if self._solve_r(i - 1, j):
+                    return True
+                left_cell.draw_move(current, undo=True)
+        # right
+        if i + 1 < self.__num_columns:
+            right_cell = self.__cells[i + 1][j]
+            if not current.has_right_wall and not right_cell.visited:
+                current.draw_move(right_cell, undo=False)
+                if self._solve_r(i + 1, j):
+                    return True
+                right_cell.draw_move(current, undo=True)
+        # up
+        if j - 1 >= 0:
+            top_cell = self.__cells[i][j - 1]
+            if not current.has_top_wall and not top_cell.visited:
+                current.draw_move(top_cell, undo=False)
+                if self._solve_r(i, j - 1):
+                    return True
+                top_cell.draw_move(current, undo=True)
+        # down
+        if j + 1 < self.__num_rows:
+            bottom_cell = self.__cells[i][j + 1]
+            if not current.has_bottom_wall and not bottom_cell.visited:
+                current.draw_move(bottom_cell, undo=False)
+                if self._solve_r(i, j + 1):
+                    return True
+                bottom_cell.draw_move(current, undo=True)
+        return False
+
+    def solve(self) -> bool:
+        return self._solve_r(0, 0)
 
     def __animate(self) -> None:
         if self.__win is None:
             return
         self.__win.redraw()
-        time.sleep(0.05)
+        time.sleep(0.2)
