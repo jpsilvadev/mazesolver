@@ -2,6 +2,7 @@ import random
 import time
 
 from cell import Cell
+from config import ANIMATION_DELAY
 from gui import Window
 
 
@@ -180,4 +181,4 @@ class Maze:
         if self.__win is None:
             return
         self.__win.redraw()
-        time.sleep(0.2)
+        time.sleep(ANIMATION_DELAY)

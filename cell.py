@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from config import BACKTRACKING_COLOR, FORWARD_COLOR
 from gui import Line, Point, Window
 
 
@@ -56,7 +57,7 @@ class Cell:
     def draw_move(self, to_cell: Cell, undo: bool = False) -> None:
         if self.__win is None:
             return
-        fill_color = "gray" if undo else "red"
+        fill_color = BACKTRACKING_COLOR if undo else FORWARD_COLOR
         center_x = (self.__x1 + self.__x2) / 2
         center_y = (self.__y1 + self.__y2) / 2
 

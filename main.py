@@ -1,19 +1,12 @@
+from config import CELL_SIZE_X, CELL_SIZE_Y, COLS, MAZE_MARGIN, ROWS, SCREEN_X, SCREEN_Y
 from gui import Window
 from maze import Maze
 
 
 def main() -> None:
-    num_rows = 12
-    num_cols = 16
-    margin = 50
-    screen_x = 800
-    screen_y = 600
-    cell_size_x = (screen_x - 2 * margin) / num_cols
-    cell_size_y = (screen_y - 2 * margin) / num_rows
-    win = Window(screen_x, screen_y)
-
-    _maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win, 1)
-    _maze.solve()
+    win = Window(SCREEN_X, SCREEN_Y)
+    maze = Maze(MAZE_MARGIN, MAZE_MARGIN, ROWS, COLS, CELL_SIZE_X, CELL_SIZE_Y, win, 1)
+    maze.solve()
 
     win.wait_for_close()
 
